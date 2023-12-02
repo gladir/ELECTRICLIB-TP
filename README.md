@@ -14,6 +14,6 @@ Bibliothèque en Turbo Pascal pour les calculs électrique.
   </tr>
   <tr>
     <td><b>ELECFUNC.PAS</b></td>
-    <td>Cette unité contient divers fonctions pour les calculs électriques.</td>
+    <td>Cette unité contient divers fonctions pour les calculs dans l'industrie de la construction électrique.</td>
   </tr>
 </table>
