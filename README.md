@@ -3,6 +3,8 @@ Bibliothèque en Turbo Pascal pour les calculs électrique.
 
 <h3>Liste des unités</h3>
 
+Voici la liste des unités que contient la bibliothèque «ELECTRICLIB-TP» :
+
 <table>
   <tr>
     <th>Nom</th>
