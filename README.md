@@ -18,4 +18,8 @@ Voici la liste des unités que contient la bibliothèque «ELECTRICLIB-TP» :
     <td><b>ELECFUNC.PAS</b></td>
     <td>Cette unité contient divers fonctions pour les calculs dans l'industrie de la construction électrique.</td>
   </tr>
+  <tr>
+    <td><b>UNITS.PAS</b></td>
+    <td>Cette unité contient les définitions et les fonctions pour la manipulation des unités de mesures de l'électricité.</td>
+  </tr>
 </table>
