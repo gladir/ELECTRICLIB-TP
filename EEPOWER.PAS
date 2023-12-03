@@ -8,7 +8,11 @@ Unit EEPOWER;
 
 INTERFACE
 
+Procedure CapBackToBack(C1,C2,Lm,VLN,VLL:Real;Var IMax,IFreq:Real);
 Procedure CapTransfer(t,Vs,R,Cs,Cd:Real;Var RVolt,VFinal:Real);
+Procedure InductorCharge(t,Vs,R,L:Real;Var Vl,Il:Real);
+Procedure InductorDischarge(t,Io,R,L:Real;Var Vl,Il:Real);
+Function  InductorEnergy(L,I:Real):Real;
 Function  VCapCharge(t,Vs,R,C:Real):Real;
 Function  VCapDischarge(t,Vs,R,C:Real):Real;
 
@@ -68,5 +72,66 @@ Begin
  RVolt:=Vs*Exp(-t/tau);
  VFinal:=Vs*Cs/(Cs+Cd);
 End;
+
+{ @description: Cette fonction permet de calculer l'Çnergie entreposÇe
+                dans un inducteur Çtant donnÇ l'inductance (en Henries)
+                et le courant.
+  @param: L:    Valeur d'inductance (en Henries)
+          I:    Courant traversant l'inducteur.
+
+}
+
+Function InductorEnergy(L,I:Real):Real;Begin
+ InductorEnergy:=(1/2*L*(I*I));
+End;
+
+{ @description: Cette fonction permet de calculer la tension et le
+                courant d'un inducteur chargeant/entreposeant de
+                l'Çnergie.
+  @param: t:    Heure Ö laquelle calculer la tension et le courant.
+          Vs:   Tension de charge aux bornes de l'inductance et de la rÇsistance.
+          R:    RÇsistance liÇe Ö l'inducteur.
+          L:    Valeur d'inductance en Henries.
+          V1:   Retourne la tension aux bornes de l'inductance au temps t.
+          I1:   Retourne le courant traversant l'inducteur au temps t.
+}
+
+Procedure InductorCharge(t,Vs,R,L:Real;Var Vl,Il:Real);Begin
+ Vl:=Vs*Exp(-R*t/L);
+ Il:=Vs/R*(1-Exp(-R*t/L));
+End;
+
+{ @description:  Cette procÇdure permet de dÇfinir la formule de
+                 commutation capacitive dos Ö dos.
+  @param: C1:    La premiäre capacitÇ
+          C2:    La deuxiäme capacitÇ
+          VLN:   La tension phase-neutre ressentie par l'un des (trois)
+                 condensateurs du batterie de condensateurs triphasÇs.
+          VLL:   La tension ligne Ö ligne subie par la batterie de
+                 condensateurs triphasÇs.
+          IMax:  êvalue le courant maximum.
+          IFreq: êvalue la frÇquence du courant d'appel
+}
+
+Procedure CapBackToBack(C1,C2,Lm,VLN,VLL:Real;Var IMax,IFreq:Real);Begin
+ IMax:=Sqrt(2/3)*VLL*Sqrt((C1*C2)/((C1+C2)*Lm));
+ IFreq:=1/(2*PI*Sqrt(Lm*(C1*C2)/(C1+C2)));
+End;
+
+{ @description: Cette procÇdure permet de calculer la tension et le
+                courant d'un inducteur dÇchargeant son Çnergie entreposÇe.
+  @param: t:    Temps Ö laquelle calculer la tension et le courant.
+          Io:   Courant initial traversant l'inducteur.
+          R:    RÇsistance dÇchargÇe.
+          L:    Valeur d'inductance en Henries.
+          Vl:   Retourne la tension aux bornes de l'inductance au temps t.
+          Il:   Courant traversant l'inducteur au temps t.
+}
+
+Procedure InductorDischarge(t,Io,R,L:Real;Var Vl,Il:Real);Begin
+ Il:=Io*Exp(-R*t/L);
+ Vl:=Io*R*(1-Exp(-R*t/L));
+End;
+
 
 END.
