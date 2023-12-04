@@ -9,10 +9,15 @@ Unit EEPOWER;
 INTERFACE
 
 Procedure CapBackToBack(C1,C2,Lm,VLN,VLL:Real;Var IMax,IFreq:Real);
+Function  CapEnergy(C,v:Real):Real;
 Procedure CapTransfer(t,Vs,R,Cs,Cd:Real;Var RVolt,VFinal:Real);
+Function  Farads(Va,V,Freq:Real):Real;
 Procedure InductorCharge(t,Vs,R,L:Real;Var Vl,Il:Real);
 Procedure InductorDischarge(t,Io,R,L:Real;Var Vl,Il:Real);
 Function  InductorEnergy(L,I:Real):Real;
+Function  LoadedVCapDischarge(t,vo,C,P:Real):Real;
+Function  Rectifier(Iload,fswitch,dVout:Real):Real;
+Function  TimeDischarge(Vinit,Vmin,C,P,dt:Real;RMS,Eremain:Boolean;Var E:Real):Real;
 Function  VCapCharge(t,Vs,R,C:Real):Real;
 Function  VCapDischarge(t,Vs,R,C:Real):Real;
 
@@ -133,5 +138,83 @@ Procedure InductorDischarge(t,Io,R,L:Real;Var Vl,Il:Real);Begin
  Vl:=Io*R*(1-Exp(-R*t/L));
 End;
 
+{ @description: Cette fonction permet de calculer la capacit‚ requise
+                en Farads pour fournir la puissance nominale souhait‚e (Va).
+  @param: Va:   La puissance nominale … respecter.
+          V:    La tension aux bornes du condensateur; non d‚crit comme
+                VLL ou VLN, simplement la tension du condensateur.
+          Freq: La fr‚quence du systŠme.
+
+}
+
+Function Farads(Va,V,Freq:Real):Real;Begin
+ Farads:=(Va/(2*PI*Freq*(V*V)));
+End;
+
+{ @description: Cette fonction permet de calculer la tension entrepos‚e
+                (en Joules) dans un condensateur avec une tension charg‚e.
+  @param: C:    Capacit‚ en Farads.
+          v:    Tension aux bornes du condensateur.
+}
+
+Function CapEnergy(C,v:Real):Real;Begin
+ CapEnergy:=1/2*C*(V*V);
+End;
+
+{ @description: Cette fonction permet de retourner la tension d'un
+                condensateur en d‚charge aprŠs un temps (t - secondes)
+                ‚tant donn‚ la tension initiale (vo - volts), la taille
+                du condensateur (cap - Farads) et la charge (P - Watts).
+  @param: t:    Heure … laquelle calculer la tension.
+          vo:   Tension initiale du condensateur.
+          C:    Capacit‚ (en Farads).
+          P:    Consommation ‚lectrique de la charge (en Watts).
+}
+
+Function LoadedVCapDischarge(t,vo,C,P:Real):Real;Begin
+ LoadedVCapDischarge:=Sqrt((vo*vo)-2*P*t/C);
+End;
+
+{ @description: Cette fonction permet de retourner le temps n‚cessaire
+                pour d‚charger un condensateur … une tension sp‚cifi‚e
+                ‚tant donn‚ un ensemble d'entr‚es.
+}
+
+Function TimeDischarge(Vinit,Vmin,C,P,dt:Real;RMS,Eremain:Boolean;Var E:Real):Real;
+Var
+ T,Vo,Vc,Vcp:Real;
+Begin
+ T:=0;
+ If(RMS)Then Vo:=Vinit*Sqrt(2)
+        Else Vo:=Vinit;
+ Vc:=LoadedVCapDischarge(T,Vo,C,P);
+ While(Vc>=Vmin)do Begin
+  T:=T+Dt;
+  Vcp:=Vc;
+  Vc:=LoadedVCapDischarge(T,Vo,C,P);
+ End;
+ If(Eremain)Then Begin
+  E:=CapEnergy(C,vcp);
+  TimeDischarge:=T-Dt;
+ End
+  Else
+ Begin
+  TimeDischarge:=T-Dt;
+ End;
+End;
+
+{ @description:    Cette fonction permet de retourner la capacit‚ (en Farads)
+                   d'un condensateur n‚cessaire dans une configuration de
+                   redresseur ‚tant donn‚ la fr‚quence du systŠme (en Hz),
+                   la charge (en ampŠres) et l'ondulation de tension
+                   souhait‚e..
+  @param: Iload:   Le courant de charge devant ˆtre respect‚.
+          fswitch: La fr‚quence de commutation du systŠme.
+          dVout:   Delta-V souhait‚ sur la sortie.
+}
+
+Function Rectifier(Iload,fswitch,dVout:Real):Real;Begin
+ Rectifier:=Iload/(FSwitch*dVout);
+End;
 
 END.
